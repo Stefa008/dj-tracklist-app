@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tracklist Maker</title>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <style>
+        :root {
+            --lime-accent: #e2f784;
+            --dark-color: #111111;
+            --bg-canvas: #ebf1f5;
+            --radius-main: 35px;
+            --radius-mobile: 28px;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--dark-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 8px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 768px) {
+            body { padding: 20px; }
+        }
+
+        /* --- CONTENITORE GENERALE ASIMMETRICO --- */
+        .app-wrapper {
+            background: #ffffff;
+            border-radius: var(--radius-mobile);
+            max-width: 1450px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 4px;
+            flex: 1;
+        }
+
+        @media (min-width: 768px) {
+            .app-wrapper { border-radius: var(--radius-main); }
+        }
+
+        /* Navbar */
+        .navbar-section {
+            padding: 20px 20px 10px 20px;
+            background: #ffffff;
+        }
+
+        .brand-logo {
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: -1.5px;
+            margin: 0;
+            color: var(--dark-color);
+        }
+
+        @media (min-width: 768px) {
+            .brand-logo { font-size: 42px; letter-spacing: -2px; padding: 5px 10px; }
+        }
+
+        /* Blocco Superiore Giallo Incastrato */
+        .hero-lime-block {
+            background-color: var(--lime-accent);
+            border-radius: var(--radius-mobile);
+            padding: 30px 20px;
+            margin-bottom: 4px;
+        }
+
+        @media (min-width: 768px) {
+            .hero-lime-block { border-radius: var(--radius-main); padding: 50px 40px; }
+        }
+
+        .hero-lime-block h1 {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin: 0 0 20px 0;
+            line-height: 1.1;
+            max-width: 800px;
+        }
+
+        @media (min-width: 768px) {
+            .hero-lime-block h1 { font-size: 48px; letter-spacing: -1.5px; margin: 0 0 30px 0; }
+        }
+
+        .search-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+        }
+
+        @media (min-width: 576px) {
+            .search-wrapper { flex-direction: row; align-items: center; max-width: 650px; }
+        }
+
+        .search-wrapper input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid var(--dark-color);
+            font-size: 18px;
+            padding: 8px 4px;
+            color: var(--dark-color);
+            font-weight: 600;
+            border-radius: 0;
+        }
+
+        .search-wrapper input::placeholder { color: rgba(17,17,17,0.35); }
+        .search-wrapper input:focus { outline: none; }
+
+        .btn-action-outline {
+            background: transparent;
+            border: 1.5px dashed var(--dark-color);
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: var(--dark-color);
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .circle-arrow {
+            width: 22px;
+            height: 22px;
+            border: 1.5px solid var(--dark-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* --- WORKSPACE GRID RESPONSIVE --- */
+        .workspace-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+
+        @media (min-width: 992px) {
+            .workspace-grid {
+                display: grid;
+                grid-template-columns: 1.05fr 0.95fr;
+                gap: 4px;
+            }
+        }
+
+        .panel-crate {
+            background-color: #f6f8f5;
+            border-radius: var(--radius-mobile);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-setlist {
+            background-color: #ffffff;
+            border: 2px solid #edf0ec;
+            border-radius: var(--radius-mobile);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        @media (min-width: 768px) {
+            .panel-crate, .panel-setlist { border-radius: var(--radius-main); padding: 35px; }
+        }
+
+        .section-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            color: #777777;
+        }
+
+        .scrollable-list {
+            flex: 1;
+        }
+
+        /* Tracce */
+        .track-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e5df;
+            gap: 12px;
+        }
+
+        .track-item img {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .track-core-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .track-name {
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--dark-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-meta-data {
+            font-size: 13px;
+            color: #666666;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .round-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1.5px solid var(--dark-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            background: transparent;
+            flex-shrink: 0;
+        }
+
+        /* Footer Azioni */
+        .panel-footer {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+            padding-bottom: 10px;
+        }
+        
+        @media (min-width: 480px) {
+            .panel-footer { flex-direction: row; gap: 15px; }
+        }
+
+        .btn-full-width {
+            flex: 1;
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* --- STAMPA PDF --- */
+        #print-pdf-layout { display: none; }
+
+        @media print {
+            body { background: #ffffff !important; color: #000000 !important; padding: 0; margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .no-print { display: none !important; }
+            #print-pdf-layout { display: block !important; }
+            
+            .pdf-container { padding: 40px; font-family: -apple-system, sans-serif; }
+            .pdf-header-block { background-color: var(--lime-accent) !important; padding: 40px; border-radius: 25px; margin-bottom: 40px; }
+            .pdf-header-block h2 { font-size: 38px; margin: 0 0 10px 0; font-weight: 900; letter-spacing: -1.5px; }
+            
+            .pdf-grid-table { width: 100%; border-collapse: collapse; }
+            .pdf-row { border-bottom: 2px solid var(--dark-color); page-break-inside: avoid; }
+            .pdf-cell { padding: 20px 10px; vertical-align: middle; }
+            .pdf-artwork { width: 60px; height: 60px; border-radius: 10px; display: block; }
+            .pdf-title { font-size: 16px; font-weight: 700; }
+            .pdf-artist { font-size: 14px; color: #333333; font-style: italic; margin-top: 2px; }
+            .pdf-meta-inputs { font-size: 12px; text-align: right; font-weight: 600; line-height: 2.2; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-wrapper no-print">
+        <div class="navbar-section">
+            <h1 class="brand-logo">Tracklist Maker.</h1>
+        </div>
+
+        <div class="hero-lime-block">
+            <h1>Crea, ordina ed esporta la tua selezione per il set</h1>
+            <div class="search-wrapper">
+                <input type="text" id="search-input" placeholder="Cerca una traccia nel database...">
+                <button class="btn-action-outline" onclick="searchTracks()">
+                    <span>Cerca brani</span>
+                    <div class="circle-arrow">→</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="workspace-grid">
+            <div class="panel-crate">
+                <div class="section-label">Risultati Archivio Globale</div>
+                <div id="search-results" class="scrollable-list"></div>
+            </div>
+
+            <div class="panel-setlist">
+                <div class="section-label">La tua sequenza d'esecuzione</div>
+                <div id="active-tracklist" class="scrollable-list"></div>
+                
+                <div class="panel-footer">
+                    <button class="btn-action-outline btn-full-width" style="border-color: #ff3300; color: #ff3300;" onclick="exportPDF()">
+                        <span>Esporta PDF Console</span>
+                        <div class="circle-arrow" style="border-color: #ff3300;">→</div>
+                    </button>
+                    <button class="btn-action-outline btn-full-width" style="border-color: #217346; color: #217346;" onclick="exportExcel()">
+                        <span>Esporta Excel</span>
+                        <div class="circle-arrow" style="border-color: #217346;">→</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="print-pdf-layout">
+        <div class="pdf-container">
+            <div class="pdf-header-block">
+                <h2>TRACKLIST PERFORMANCE REPORT</h2>
+                <div style="font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
+                    Tracklist Maker Setlist &nbsp;|&nbsp; Data: ____/____/2026
+                </div>
+            </div>
+            <table class="pdf-grid-table" id="pdf-table-body">
+                </table>
+        </div>
+    </div>
+
+    <script>
+        let currentTracklist = [];
+
+        async function searchTracks() {
+            const query = document.getElementById('search-input').value;
+            if(!query) return;
+            
+            const resultsDiv = document.getElementById('search-results');
+            resultsDiv.innerHTML = '<p style="color: #666; padding: 5px;">Sincronizzazione catalogo...</p>';
+            
+            try {
+                const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+                const tracks = await response.json();
+                resultsDiv.innerHTML = '';
+                
+                if(tracks.length === 0) {
+                    resultsDiv.innerHTML = '<p style="color: #666; padding: 5px;">Nessun risultato trovato.</p>';
+                    return;
+                }
+                
+                tracks.forEach(track => {
+                    const row = document.createElement('div');
+                    row.className = 'track-item';
+                    const safeTrackStr = btoa(unescape(encodeURIComponent(JSON.stringify(track))));
+                    
+                    row.innerHTML = `
+                        <img src="${track.artwork}" alt="artwork">
+                        <div class="track-core-info">
+                            <div class="track-name">${track.title}</div>
+                            <div class="track-meta-data">${track.artist}</div>
+                        </div>
+                        <div class="round-btn" onclick="addToTracklist('${safeTrackStr}')">+</div>
+                    `;
+                    resultsDiv.appendChild(row);
+                });
+            } catch (err) {
+                resultsDiv.innerHTML = '<p style="color: red; padding: 5px;">Errore di connessione locale.</p>';
+            }
+        }
+
+        function addToTracklist(base64Track) {
+            const track = JSON.parse(decodeURIComponent(escape(atob(base64Track))));
+            currentTracklist.push(track);
+            renderTracklist();
+        }
+
+        function removeFromTracklist(index) {
+            currentTracklist.splice(index, 1);
+            renderTracklist();
+        }
+
+        function renderTracklist() {
+            const container = document.getElementById('active-tracklist');
+            container.innerHTML = '';
+            
+            currentTracklist.forEach((track, index) => {
+                const row = document.createElement('div');
+                row.className = 'track-item';
+                row.dataset.index = index;
+                
+                row.innerHTML = `
+                    <span style="font-weight: 900; width: 28px; font-size: 14px; flex-shrink: 0;">#${index + 1}</span>
+                    <img src="${track.artwork}" alt="artwork">
+                    <div class="track-core-info">
+                        <div class="track-name">${track.title}</div>
+                        <div class="track-meta-data">${track.artist}</div>
+                    </div>
+                    <div class="round-btn" style="border-color: #ff3300; color: #ff3300;" onclick="removeFromTracklist(${index})">✕</div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        Sortable.create(document.getElementById('active-tracklist'), {
+            animation: 150,
+            handle: '.track-core-info',
+            onEnd: function () {
+                const rows = document.getElementById('active-tracklist').querySelectorAll('.track-item');
+                let rearranged = [];
+                rows.forEach(row => {
+                    rearranged.push(currentTracklist[row.dataset.index]);
+                });
+                currentTracklist = rearranged;
+                renderTracklist();
+            }
+        });
+
+        function exportPDF() {
+            if(currentTracklist.length === 0) {
+                alert("La tua sequenza d'esecuzione è vuota!");
+                return;
+            }
+            
+            const pdfTableBody = document.getElementById('pdf-table-body');
+            pdfTableBody.innerHTML = '';
+            
+            currentTracklist.forEach((track, index) => {
+                const tr = document.createElement('tr');
+                tr.className = 'pdf-row';
+                tr.innerHTML = `
+                    <td class="pdf-cell" style="font-size: 20px; font-weight: 900; width: 50px;">#${index + 1}</td>
+                    <td class="pdf-cell" style="width: 80px;"><img class="pdf-artwork" src="${track.artwork}"></td>
+                    <td class="pdf-cell">
+                        <div class="pdf-title">${track.title}</div>
+                        <div class="pdf-artist">${track.artist}</div>
+                    </td>
+                    <td class="pdf-cell pdf-meta-inputs">
+                        BPM: _______________________<br>
+                        CHIAVE (KEY): _______________<br>
+                        PUNTO DI MIX: _______________
+                    </td>
+                `;
+                pdfTableBody.appendChild(tr);
+            });
+            
+            window.print();
+        }
+
+        function exportExcel() {
+            if(currentTracklist.length === 0) return;
+            let csvContent = "\uFEFFPosizione,Titolo,Artista\n";
+            currentTracklist.forEach((track, index) => {
+                csvContent += `${index + 1},"${track.title}","${track.artist}"\n`;
+            });
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "tracklist_maker.csv";
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        }
+    </script>
+</body>
+</html>

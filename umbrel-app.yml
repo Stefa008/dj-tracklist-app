@@ -1,0 +1,16 @@
+id: dj-tracklist-app
+name: DJ Tracklist App
+version: "1.0.0"
+tagline: "Organizza le tue tracklist ed esportale in PDF/Excel per il tuo set."
+description: >
+  Un'applicazione minimale e asimmetrica pensata per DJ e appassionati di musica.
+  Permette di cercare brani tramite l'API di Apple Music, ordinarli tramite drag-and-drop
+  e generare un report PDF pronto per la console o un foglio Excel.
+developer: "Custom"
+website: "https://umbrel.com"
+dependencies: []
+repo: ""
+support: ""
+port: 5001
+gallery: []
+icon: "https://img.icons8.com/fluid/512/vinyl-record.png"

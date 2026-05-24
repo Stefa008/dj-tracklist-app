@@ -1,0 +1,15 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: dj-tracklist-app_web_1
+      APP_PORT: 5001
+
+  web:
+    image: dj-tracklist-app:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: on-failure
+    stop_grace_period: 1m
