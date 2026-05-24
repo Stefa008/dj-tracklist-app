@@ -1,16 +1,27 @@
-id: stefa-dj-tracklist-app
+manifestVersion: 1
+id: stuff-dj-tracklist-app
 name: DJ Tracklist App
-version: "1.0.0"
 tagline: "Organizza le tue tracklist ed esportale in PDF/Excel per il tuo set."
-description: >
+icon: https://img.icons8.com/fluid/512/vinyl-record.png
+category: Development
+version: "1.0.0"
+port: 5001
+description: >-
+
   Un'applicazione minimale e asimmetrica pensata per DJ e appassionati di musica.
   Permette di cercare brani tramite l'API di Apple Music, ordinarli tramite drag-and-drop
   e generare un report PDF pronto per la console o un foglio Excel.
-developer: "Custom"
-website: "https://umbrel.com"
+
+developer: Stefa008
+website: https://umbrel.com
+submitter: Stefa008
+submission: https://github.com/Stefa008/dj-tracklist-app/edit/main/stefa-dj-tracklist-app
+repo: https://github.com/Stefa008/dj-tracklist-app/edit/main/stefa-dj-tracklist-app
+support: https://github.com/Stefa008/dj-tracklist-app/edit/main/stefa-dj-tracklist-app/issues
+gallery:
+releaseNotes: >-
+  Add what's new in the latest version of your app here.
 dependencies: []
-repo: ""
-support: ""
-port: 5001
-gallery: []
-icon: "https://img.icons8.com/fluid/512/vinyl-record.png"
+path: ""
+defaultUsername: ""
+defaultPassword: ""
